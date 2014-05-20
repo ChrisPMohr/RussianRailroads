@@ -1,3 +1,6 @@
+from action_results import MoveTrack
+import action_taker
+
 class GameBoard(object):
     """A game board consists of many action spaces"""
 
@@ -13,11 +16,17 @@ class GameBoard(object):
         if num_players > 2:
             self.actions.extend(more_player_actions)
 
+        self.action_taker = action_taker.ActionTaker()
+
     def get_action_by_id(self, _id):
         for action in self.actions:
             if action.id == _id:
                 return action
         return None
+
+    def take_action(self, player, _id, input_string):
+        action = self.get_action_by_id(_id)
+        self.action_taker.take_action(player, action, input_string)
 
 
 class ActionSpace(object):
@@ -49,13 +58,3 @@ class ActionCost(object):
     def __init__(self, workers, rubles):
         self.workers = workers
         self.rubles = rubles
-
-class ActionResult(object):
-    pass
-
-class MoveTrack(ActionResult):
-    def __init__(self, color, number):
-        # Color is 0-4 for regular colors (black, grey, tan, natural, white),
-        # -1 for any color, or -2 for black/grey
-        self.color = color
-        self.number = number
