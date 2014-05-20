@@ -22,7 +22,8 @@ class GameViewer(object):
     def draw_action(self, format_string, _id):
         action = self.game_state.game_board.get_action_by_id(_id)
         if action:
-            workers = ''.join(action.occupants)
+            workers = ''.join(color if symbol == 'w' else symbol
+                              for symbol, color in action.occupants)
             print(format_string.format(workers))
         else:
             return ' ' * len(format_string.format(''))

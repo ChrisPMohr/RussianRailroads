@@ -7,8 +7,12 @@ if __name__=='__main__':
     viewer.draw_board()
 
     # Do one round of turns
+    state.reset_board()
     ordered_players = [state.player_boards[i] for i in state.turn_order]
     board = state.game_board
     for player in ordered_players:
-        board.take_action(player, 2, 'vvv')
+        if board.get_action_by_id(2).is_available():
+            board.take_action(player, 2, 'ww', 'vvv')
+        else:
+            board.take_action(player, 12, 'w', 'bv')
         viewer.draw_board()

@@ -1,4 +1,4 @@
-class WrongMoveError(Exception):
+class InvalidMoveError(Exception):
     pass
 
 class BadInputError(Exception):

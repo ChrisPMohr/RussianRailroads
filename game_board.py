@@ -24,9 +24,10 @@ class GameBoard(object):
                 return action
         return None
 
-    def take_action(self, player, _id, input_string):
+    def take_action(self, player, _id, cost_input, result_input):
         action = self.get_action_by_id(_id)
-        self.action_taker.take_action(player, action, input_string)
+        self.action_taker.take_action(player, action,
+                                      cost_input, result_input)
 
 
 class ActionSpace(object):
@@ -39,7 +40,6 @@ class ActionSpace(object):
     def __init__(self, _id, cost, result):
         self.id = _id
         self.cost = cost
-        self.cost_length = cost.workers + cost.rubles
         self.result = result
         self.occupants = []
 

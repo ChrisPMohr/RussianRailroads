@@ -1,4 +1,4 @@
-from game_exceptions import WrongMoveError
+from game_exceptions import InvalidMoveError
 
 class TrainLine(object):
     def advance(self, color):
@@ -12,12 +12,12 @@ class TrainLine(object):
                     # Sucessfully advance track
                     self.colors[color] += 1
                 else:
-                    raise WrongMoveError('Tried to pass next color track')
+                    raise InvalidMoveError('Tried to pass next color track')
             else:
-                raise WrongMoveError(
+                raise InvalidMoveError(
                     'Tried to move track past the end of the line')
         else:
-            raise WrongMoveError('Invalid color')
+            raise InvalidMoveError('Invalid color')
 
 
 class VladivostokLine(TrainLine):

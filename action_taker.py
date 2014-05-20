@@ -2,49 +2,91 @@ from action_results import MoveTrack
 import game_exceptions
 
 class ActionTaker(object):
-    def take_action(self, player, action, input_string):
+    def take_action(self, player, action, cost_input, result_input):
+        # check is space is available
+        if not action.is_available():
+            raise game_exceptions.InvalidMoveError(
+                'Action space is already occupied')
+
+        # translate the cost_input
+        num_workers = 0
+        num_rubles = 0
+        for letter in cost_input:
+            if letter == 'w':
+                num_workers += 1
+            elif letter == '$':
+                num_rubles += 1
+            else:
+                raise game_exceptions.BadInputError('Invalid payment')
+
+        # check if player can pay input
+        if player.workers < num_workers or player.rubles < num_rubles:
+            raise game_exceptions.InvalidMoveError(
+                'Player cannot afford payment')
+
+        # check if input meets cost
+        cost = action.cost
+        if (cost.rubles > num_rubles or
+            cost.workers + cost.rubles != num_workers + num_rubles):
+            raise game_exceptions.InvalidMoveError(
+                'Not enough paid for action')
+
+        # apply action
         result = action.result
         result_type = type(result)
         if result_type is MoveTrack:
-            action_color = result.color
-            track_number = result.number
-            if action_color >= 0:
-                # parse input as a order to advance tracks
-                if len(input_string) == track_number:
-                    for line in input_string:
-                        if line == 'v':
-                            player.v_line.advance(action_color)
-                        elif line == 's':
-                            player.s_line.advance(action_color)
-                        elif line == 'k':
-                            player.k_line.advance(action_color)
-                        else:
-                            raise game_exceptions.BadInputError(
-                                'Invalid track name')
+            move_track(player, result, result_input)
+
+        # make player pay cost for action
+        player.workers -= num_workers
+        player.rubles -= num_rubles
+
+        # fill action slot with workers
+        for _ in range(num_workers):
+            action.occupants.append(('w', player.color))
+        for _ in range(num_rubles):
+            action.occupants.append(('$', player.color))
+
+def move_track(player, result, result_input):
+    action_color = result.color
+    track_number = result.number
+    if action_color >= 0:
+        # parse input as a order to advance tracks
+        if len(result_input) == track_number:
+            for line in result_input:
+                if line == 'v':
+                    player.v_line.advance(action_color)
+                elif line == 's':
+                    player.s_line.advance(action_color)
+                elif line == 'k':
+                    player.k_line.advance(action_color)
                 else:
-                    raise game_exceptions.BadInputError('Wrong input length')
-            else:
-                # parse input as color, track name pairs
-                if len(input_string) == track_number * 2:
-                    string_iter = iter(input_string)
-                    for color, line in zip(string_iter, string_iter):
-                        colors = {'b': 0, 'g': 1, 't': 2, 'n': 3, 'w': 4}
-                        try:
-                            input_color = colors[color]
-                        except KeyError:
-                            raise game_exceptions.BadInputError(
-                                'Invalid color name')
-                        if action_color == -2 and input_color > 1:
-                            raise game_exceptions.BadInputError(
-                                'Invalid color for this action')
-                        if line == 'v':
-                            player.v_line.advance(input_color)
-                        elif line == 's':
-                            player.s_line.advance(input_color)
-                        elif line == 'k':
-                            player.k_line.advance(input_color)
-                        else:
-                            raise game_exceptions.BadInputError(
-                                'Invalid track name')
+                    raise game_exceptions.BadInputError(
+                        'Invalid track name')
+        else:
+            raise game_exceptions.BadInputError('Wrong input length')
+    else:
+        # parse input as color, track name pairs
+        if len(result_input) == track_number * 2:
+            string_iter = iter(result_input)
+            for color, line in zip(string_iter, string_iter):
+                colors = {'b': 0, 'g': 1, 't': 2, 'n': 3, 'w': 4}
+                try:
+                    input_color = colors[color]
+                except KeyError:
+                    raise game_exceptions.BadInputError(
+                        'Invalid color name')
+                if action_color == -2 and input_color > 1:
+                    raise game_exceptions.BadInputError(
+                        'Invalid color for this action')
+                if line == 'v':
+                    player.v_line.advance(input_color)
+                elif line == 's':
+                    player.s_line.advance(input_color)
+                elif line == 'k':
+                    player.k_line.advance(input_color)
                 else:
-                    raise game_exceptions.BadInputError('Wrong input length')
+                    raise game_exceptions.BadInputError(
+                        'Invalid track name')
+        else:
+            raise game_exceptions.BadInputError('Wrong input length')
