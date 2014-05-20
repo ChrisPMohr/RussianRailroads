@@ -6,15 +6,9 @@ if __name__=='__main__':
     viewer = game_viewer.GameViewer(state)
     viewer.draw_board()
 
-    player1 = state.player_boards[0]
+    # Do one round of turns
+    ordered_players = [state.player_boards[i] for i in state.turn_order]
     board = state.game_board
-
-    board.take_action(player1, 2, 'vvv')
-    viewer.draw_board()
-
-    board.take_action(player1, 12, 'gv')
-    board.take_action(player1, 12, 'gv')
-    board.take_action(player1, 12, 'gv')
-    board.take_action(player1, 12, 'bv')
-    board.take_action(player1, 12, 'gv')
-    viewer.draw_board()
+    for player in ordered_players:
+        board.take_action(player, 2, 'vvv')
+        viewer.draw_board()

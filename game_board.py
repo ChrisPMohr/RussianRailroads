@@ -2,7 +2,7 @@ from action_results import MoveTrack
 import action_taker
 
 class GameBoard(object):
-    """A game board consists of many action spaces"""
+    """A game board consists of many action spaces and a turn order"""
 
     def __init__(self, num_players):
         two_player_actions = [

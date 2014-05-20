@@ -8,3 +8,5 @@ class GameState(object):
         self.game_board = game_board.GameBoard(player_num)
         self.player_boards = [player_board.PlayerBoard(player_num)
                               for _ in range(player_num)]
+
+        self.turn_order = [i for i in range(player_num)]
