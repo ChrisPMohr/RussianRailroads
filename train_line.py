@@ -28,9 +28,9 @@ class VladivostokLine(TrainLine):
 class StPetersburgLine(TrainLine):
     def __init__(self):
         self.colors = [1, 0, 0, 0]
-        length = 9
+        self.length = 9
 
 class KievLine(TrainLine):
     def __init__(self):
         self.colors = [1, 0, 0]
-        length = 9
+        self.length = 9
