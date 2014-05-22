@@ -22,15 +22,17 @@ class GameBoard(object):
 
     def get_action_by_id(self, _id):
         for action in self.actions:
-            if action.id == _id:
+            if action._id == _id:
                 return action
         return None
 
-    def take_action(self, player, _id, cost_input, result_input):
-        action = self.get_action_by_id(_id)
+    def take_action(self, player, action, cost_input, result_input):
         self.action_taker.take_action(player, action,
                                       cost_input, result_input)
 
+    def start_round(self):
+        for action in self.actions:
+            action.occupants = []
 
 class ActionSpace(object):
     """A space where players can place workers
@@ -40,7 +42,7 @@ class ActionSpace(object):
     """
 
     def __init__(self, _id, cost, result):
-        self.id = _id
+        self._id = _id
         self.cost = cost
         self.result = result
         self.occupants = []

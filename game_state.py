@@ -14,15 +14,17 @@ class GameState(object):
 
         self.turn_order = [i for i in range(player_num)]
         self.current_turn_index = -1
-        self.reset_board()
+        self.round = 0
 
     @property
     def current_player(self):
         return self.player_boards[self.turn_order[self.current_turn_index]]
 
-    def reset_board(self):
+    def next_round(self):
+        self.round += 1
         for player in self.player_boards:
             player.reset_board()
+        self.game_board.start_round()
         self.current_turn_index = -1
 
     def next_player(self, start = -1):

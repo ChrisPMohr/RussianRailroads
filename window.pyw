@@ -1,4 +1,5 @@
 import game_state
+from action_widget import ActionWidget
 
 import sys
 from PyQt4 import QtGui
@@ -17,25 +18,13 @@ class Window(QtGui.QWidget):
         # Set up the board layout
         overall_layout = QtGui.QGridLayout()
 
-        # Set up the action spaces
-        action_2b = ActionButton('[{:<1}] -> 2B', 1, self)
-        action_3b = ActionButton('[{:<2}] -> 3B', 2, self)
-        action_2g = ActionButton('[{:<1}] -> 2G', 3, self)
-        action_3g = ActionButton('[{:<2}] -> 3G', 4, self)
-        action_1b_or_1g = ActionButton('[{:<6}] -> 1B/1G', 12, self)
+        # Show round info
+        self.round_label = QtGui.QLabel('Round info')
+        overall_layout.addWidget(self.round_label, 1, 1)
 
-        pass_button = QtGui.QPushButton('Pass')
-        pass_button.clicked.connect(self.handle_pass_button)
-
-        overall_layout.addWidget(action_2b, 1, 1, 1, 2)
-        overall_layout.addWidget(action_3b, 1, 3, 1, 2)
-        overall_layout.addWidget(action_2g, 2, 1, 1, 2)
-        overall_layout.addWidget(action_3g, 2, 3, 1, 2)
-        overall_layout.addWidget(pass_button, 1, 5)
-
-        overall_layout.addWidget(action_1b_or_1g, 3, 1, 1, 4)
-
-        overall_layout.setColumnStretch(10, 1)
+        # Set up action spaces
+        self.action_widget = ActionWidget(self)
+        overall_layout.addWidget(self.action_widget, 3, 1)
 
         # Set up the player boards
         all_player_layout = QtGui.QGridLayout()
@@ -49,8 +38,8 @@ class Window(QtGui.QWidget):
         self.current_player_label = QtGui.QLabel('')
         all_player_layout.addWidget(self.current_player_label, 1, 1)
         self.current_player = None
-        self.next_player()
 
+        self.start_round()
 
         overall_layout.addLayout(all_player_layout, 4, 1, 1, -1)
 
@@ -59,36 +48,16 @@ class Window(QtGui.QWidget):
         self.setWindowTitle('Russian Railroads')
         self.show()
 
-    def handle_action_button(self):
-        sender = self.sender()
-        _id = sender.id
-        board = self.state.game_board
-        action = self.state.game_board.get_action_by_id(_id)
-        if action and action.is_available():
-            # open dialog for text payment and choices input
-            payment, ok_payment = QtGui.QInputDialog.getText(
-                    self, 'Payment Input',
-                    'Enter Payment:')
-
-            choices, ok_choices = QtGui.QInputDialog.getText(
-                    self, 'Choices Input',
-                    'Enter Choices:')
-
-            if ok_payment and ok_choices:
-                board.take_action(
-                        self.current_player.board,
-                        _id, payment, choices)
-                self.current_player.refresh_layout()
-                sender.format_text(action.occupants)
-                self.next_player()
-
-    def handle_pass_button(self):
-        next_player = self.state.player_passes()
-        if next_player == -1:
-            QtGui.QMessageBox.about(self, 'Turn Over',
-                'All players passed. The turn is over.')
-        else:
-            self.set_current_player(next_player)
+    def start_round(self):
+        self.state.next_round()
+        self.next_player()
+        # update round label
+        self.round_label.setText('Round {}'.format(self.state.round))
+        # refresh action layout
+        self.action_widget.refresh_layout()
+        # refresh player layouts
+        for player in self.players:
+            player.refresh_layout()
 
     def next_player(self):
         self.set_current_player(self.state.next_player())
@@ -97,22 +66,6 @@ class Window(QtGui.QWidget):
         self.current_player = self.players[new_current_player]
         self.current_player_label.setText(
             'Current Player: ' + self.current_player.board.color)
-
-
-class ActionButton(QtGui.QPushButton):
-    def __init__(self, action_format, _id, parent=None):
-        super(ActionButton, self).__init__(parent)
-        self.clicked.connect(parent.handle_action_button)
-
-        self.id = _id
-        self.action_format = action_format
-
-        self.setStyleSheet(default_style)
-        self.format_text()
-
-    def format_text(self, occupants=[]):
-        occupant_symbols = worker_string(occupants)
-        self.setText(self.action_format.format(occupant_symbols))
 
 
 class UIPlayer(object):
