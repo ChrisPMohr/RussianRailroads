@@ -7,7 +7,6 @@ from PyQt4 import QtGui
 default_style = 'font-size: 10pt; font-family: Courier;'
 
 class Window(QtGui.QWidget):
-
     def __init__(self):
         super(Window, self).__init__()
         self.init_UI()
@@ -19,19 +18,24 @@ class Window(QtGui.QWidget):
         overall_layout = QtGui.QGridLayout()
 
         # Set up the action spaces
-        action1 = ActionButton('[{:<1}] -> 2B', 1, self)
-        action2 = ActionButton('[{:<2}] -> 3B', 2, self)
-        action3 = ActionButton('[{:<6}] -> 1B/1G', 12, self)
+        action_2b = ActionButton('[{:<1}] -> 2B', 1, self)
+        action_3b = ActionButton('[{:<2}] -> 3B', 2, self)
+        action_2g = ActionButton('[{:<1}] -> 2G', 3, self)
+        action_3g = ActionButton('[{:<2}] -> 3G', 4, self)
+        action_1b_or_1g = ActionButton('[{:<6}] -> 1B/1G', 12, self)
 
-        action1.clicked.connect(self.handle_action_button)
-        action2.clicked.connect(self.handle_action_button)
-        action3.clicked.connect(self.handle_action_button)
+        pass_button = QtGui.QPushButton('Pass')
+        pass_button.clicked.connect(self.handle_pass_button)
 
-        overall_layout.addWidget(action1, 1, 1)
-        overall_layout.addWidget(action2, 2, 1)
-        overall_layout.addWidget(action3, 3, 1)
+        overall_layout.addWidget(action_2b, 1, 1, 1, 2)
+        overall_layout.addWidget(action_3b, 1, 3, 1, 2)
+        overall_layout.addWidget(action_2g, 2, 1, 1, 2)
+        overall_layout.addWidget(action_3g, 2, 3, 1, 2)
+        overall_layout.addWidget(pass_button, 1, 5)
 
-        overall_layout.setColumnStretch(2, 1)
+        overall_layout.addWidget(action_1b_or_1g, 3, 1, 1, 4)
+
+        overall_layout.setColumnStretch(10, 1)
 
         # Set up the player boards
         all_player_layout = QtGui.QGridLayout()
@@ -48,7 +52,7 @@ class Window(QtGui.QWidget):
         self.next_player()
 
 
-        overall_layout.addLayout(all_player_layout, 4, 1, 1, 2)
+        overall_layout.addLayout(all_player_layout, 4, 1, 1, -1)
 
         self.setLayout(overall_layout)
         self.setGeometry(300, 300, 500, 300)
@@ -56,7 +60,6 @@ class Window(QtGui.QWidget):
         self.show()
 
     def handle_action_button(self):
-        print('button clicked')
         sender = self.sender()
         _id = sender.id
         board = self.state.game_board
@@ -79,13 +82,28 @@ class Window(QtGui.QWidget):
                 sender.format_text(action.occupants)
                 self.next_player()
 
+    def handle_pass_button(self):
+        next_player = self.state.player_passes()
+        if next_player == -1:
+            QtGui.QMessageBox.about(self, 'Turn Over',
+                'All players passed. The turn is over.')
+        else:
+            self.set_current_player(next_player)
+
     def next_player(self):
-        self.current_player = self.players[self.state.next_player()]
-        self.current_player_label.setText('Current Player: ' + self.current_player.board.color)
+        self.set_current_player(self.state.next_player())
+
+    def set_current_player(self, new_current_player):
+        self.current_player = self.players[new_current_player]
+        self.current_player_label.setText(
+            'Current Player: ' + self.current_player.board.color)
+
 
 class ActionButton(QtGui.QPushButton):
     def __init__(self, action_format, _id, parent=None):
         super(ActionButton, self).__init__(parent)
+        self.clicked.connect(parent.handle_action_button)
+
         self.id = _id
         self.action_format = action_format
 
@@ -130,7 +148,6 @@ class PlayerLayout(QtGui.QGridLayout):
         rubles = [('$', player_board.color) for _ in range(player_board.rubles)]
         self.worker_label.setText(worker_string(workers + rubles))
         self.train_label.setText(all_trains_string(player_board))
-
 
 
 def worker_string(workers):

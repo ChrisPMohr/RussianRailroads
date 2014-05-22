@@ -6,11 +6,13 @@ class GameBoard(object):
 
     def __init__(self, num_players):
         two_player_actions = [
-                ActionSpace(2, ActionCost(2, 0), MoveTrack(0, 3)),
-                ReusableActionSpace(12, ActionCost(1, 0), MoveTrack(-2, 1))]
+            ActionSpace(2, ActionCost(2, 0), MoveTrack(0, 3)),
+            ActionSpace(4, ActionCost(2, 0), MoveTrack(1, 3)),
+            ReusableActionSpace(12, ActionCost(1, 0), MoveTrack(-2, 1))]
 
         more_player_actions = [
-                ActionSpace(1, ActionCost(1, 0), MoveTrack(0, 2))]
+            ActionSpace(1, ActionCost(1, 0), MoveTrack(0, 2)),
+            ActionSpace(3, ActionCost(1, 0), MoveTrack(1, 2))]
 
         self.actions = two_player_actions
         if num_players > 2:

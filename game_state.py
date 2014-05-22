@@ -13,15 +13,31 @@ class GameState(object):
                               for i in range(player_num)]
 
         self.turn_order = [i for i in range(player_num)]
+        self.current_turn_index = -1
         self.reset_board()
+
+    @property
+    def current_player(self):
+        return self.player_boards[self.turn_order[self.current_turn_index]]
 
     def reset_board(self):
         for player in self.player_boards:
             player.reset_board()
         self.current_turn_index = -1
 
-    def next_player(self):
+    def next_player(self, start = -1):
+        original_index = self.current_turn_index
         self.current_turn_index += 1
         if self.current_turn_index >= len(self.turn_order):
             self.current_turn_index = 0
-        return self.current_turn_index
+        if start >= -1 and self.current_turn_index == start:
+            # Everyone has passed
+            return -1
+        elif not self.current_player.passed:
+            return self.current_turn_index
+        else:
+            return self.next_player(start if start >= 0 else original_index)
+
+    def player_passes(self):
+        self.current_player.passed = True
+        return self.next_player()
