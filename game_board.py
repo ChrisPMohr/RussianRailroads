@@ -1,3 +1,5 @@
+"""Contains classes representing entities on the shared game board"""
+
 from action_results import MoveTrack, TurnOrder
 import action_taker
 
@@ -20,7 +22,7 @@ class GameBoard(object):
         if num_players > 2:
             self.actions.extend(more_player_actions)
 
-        self.action_taker = action_taker.ActionTaker()
+        self.action_taker = action_taker.ActionTaker(state)
 
     def get_action_by_id(self, _id):
         for action in self.actions:
@@ -29,10 +31,12 @@ class GameBoard(object):
         return None
 
     def take_action(self, player, action, cost_input, result_input):
+        """Make player take an action with given inputs"""
         self.action_taker.take_action(player, action,
                                       cost_input, result_input)
 
     def start_round(self):
+        """Do actions to set the board for a new round"""
         for action in self.actions:
             action.occupants = []
 
@@ -50,6 +54,7 @@ class ActionSpace(object):
         self.occupants = []
 
     def is_available(self, player):
+        """Returns whether player can take spot"""
         if self.occupants:
             return False
         else:
@@ -70,7 +75,7 @@ class TurnOrderActionSpace(ActionSpace):
 
     def is_available(self, player):
         # check that player doesn't already occupy the other turn order space
-        for number, space in self.all_spaces.items():
+        for _, space in self.all_spaces.items():
             if space.occupants and space.occupants[0][1] == player.color:
                 return False
 

@@ -101,7 +101,6 @@ class GameState(object):
 
         self.next_turn_order = next_turn_order
 
-
     def set_worker_replacement_order(self):
         """Set the order of players to move their pieces off the turn
            selection spaces

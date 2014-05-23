@@ -119,5 +119,49 @@ class ChangeTurnOrderTests(unittest.TestCase):
         self.assertEqual(self.state.player_passes(), 2)
         self.assertEqual(self.state.player_passes(), 3)
 
+class RelocatedWorkerTests(unittest.TestCase):
+    def setUp(self):
+        self.state = game_state.GameState(4, ['A', 'B', 'C', 'D'])
+        self.game_board = self.state.game_board
+        self.player = self.state.player_boards[0]
+        action = self.game_board.get_action_by_id(14)
+        self.game_board.take_action(self.player, action, 'w', '')
+        self.state.next_player()
+        self.state.player_passes()
+        self.state.player_passes()
+        self.state.player_passes()
+        self.state.next_player()
+
+    def test_legal_placement(self):
+        self.assertEqual(self.player.workers, 4)
+        action = self.game_board.get_action_by_id(1)
+        self.game_board.take_action(self.player, action, 'w', 'vv')
+        self.assertEqual(self.player.workers, 4)
+
+    def test_legal_no_workers(self):
+        self.player.workers = 0
+        action = self.game_board.get_action_by_id(1)
+        self.game_board.take_action(self.player, action, 'w', 'vv')
+        self.assertEqual(self.player.workers, 0)
+
+    def test_place_multiple_workers(self):
+        action = self.game_board.get_action_by_id(2)
+        with self.assertRaises(game_exceptions.InvalidMoveError):
+            self.game_board.take_action(
+                self.player, action, 'ww', 'vvv')
+
+    def test_place_multiple_workers(self):
+        action = self.game_board.get_action_by_id(1)
+        with self.assertRaises(game_exceptions.InvalidMoveError):
+            self.game_board.take_action(
+                self.player, action, '$', 'vv')
+
+    def test_turn_order_action(self):
+        action = self.game_board.get_action_by_id(13)
+        with self.assertRaises(game_exceptions.InvalidMoveError):
+            self.game_board.take_action(
+                self.player, action, 'w', '')
+
+
 if __name__ == '__main__':
     unittest.main()
