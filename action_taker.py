@@ -4,9 +4,9 @@ import game_exceptions
 class ActionTaker(object):
     def take_action(self, player, action, cost_input, result_input):
         # check is space is available
-        if not action.is_available():
+        if not action.is_available(player):
             raise game_exceptions.InvalidMoveError(
-                'Action space is already occupied')
+                'Action space is not available')
 
         # translate the cost_input
         num_workers = 0

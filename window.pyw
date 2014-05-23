@@ -13,7 +13,8 @@ class Window(QtGui.QWidget):
         self.init_UI()
 
     def init_UI(self):
-        self.state = game_state.GameState(3)
+        self.state = game_state.GameState(
+            4, ['Alice', 'Bob', 'Christie', 'Dave'])
 
         # Set up the board layout
         overall_layout = QtGui.QGridLayout()
@@ -52,12 +53,21 @@ class Window(QtGui.QWidget):
         self.state.next_round()
         self.next_player()
         # update round label
-        self.round_label.setText('Round {}'.format(self.state.round))
+        self.refresh_round_label()
         # refresh action layout
         self.action_widget.refresh_layout()
         # refresh player layouts
         for player in self.players:
             player.refresh_layout()
+
+    def refresh_round_label(self):
+        state = self.state
+        turn_order = [state.player_boards[state.turn_order[i]].name
+                      for i in range(state.player_num)]
+        turn_order_string = ' - '.join(turn_order)
+        label_string = 'Round {} Turn Order: {}'.format(
+            state.round, turn_order_string)
+        self.round_label.setText(label_string)
 
     def next_player(self):
         self.set_current_player(self.state.next_player())
@@ -84,14 +94,15 @@ class PlayerLayout(QtGui.QGridLayout):
         self.refresh_layout(player_board)
 
     def init_layout(self, player_board):
-        self.color_label = QtGui.QLabel(player_board.color)
+        header = "{} ({})".format(player_board.color.upper(), player_board.name)
+        self.header_label = QtGui.QLabel(header)
         self.worker_label = QtGui.QLabel()
         self.worker_label.setStyleSheet(default_style)
         self.train_label = QtGui.QLabel()
         self.train_label.setStyleSheet(default_style)
 
 
-        self.addWidget(self.color_label, 1, 1)
+        self.addWidget(self.header_label, 1, 1)
         self.addWidget(self.worker_label, 2, 1)
         self.addWidget(self.train_label, 3, 1)
         self.setRowStretch(4,1)

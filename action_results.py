@@ -7,3 +7,7 @@ class MoveTrack(ActionResult):
         # -1 for any color, or -2 for black/grey
         self.color = color
         self.number = number
+
+class TurnOrder(ActionResult):
+    def __init__(self, number):
+        self.number = number

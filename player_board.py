@@ -7,7 +7,8 @@ class PlayerBoard(object):
     include workers, rubles, and other player possessions
     """
 
-    def __init__(self, num_players, color):
+    def __init__(self, num_players, name, color):
+        self.name = name
         self.color = color
         self.passed = False
 
