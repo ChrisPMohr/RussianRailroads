@@ -14,7 +14,7 @@ class Window(QtGui.QWidget):
 
     def init_UI(self):
         self.state = game_state.GameState(
-            4, ['Alice', 'Bob', 'Christie', 'Dave'])
+            4, ['Alice', 'Bob', 'Carol', 'Dave'])
 
         # Set up the board layout
         overall_layout = QtGui.QGridLayout()

@@ -60,24 +60,25 @@ class ReusableActionSpace(ActionSpace):
         return True
 
 class TurnOrderActionSpace(ActionSpace):
-    all_spaces = list()
+    all_spaces = dict()
 
     def __init__(self, _id, cost, result, state):
         super(TurnOrderActionSpace, self).__init__(_id, cost, result)
-        self.all_spaces.append(self)
+        ordinal = result.number
+        self.all_spaces[ordinal] = self
         self.state = state
 
     def is_available(self, player):
         # check that player doesn't already occupy the other turn order space
-        for space in self.all_spaces:
+        for number, space in self.all_spaces.items():
             if space.occupants and space.occupants[0][1] == player.color:
                 return False
 
         # check that player isn't currently in that position
         # or that it is a 2 player game.
-        number = self.result.number
+        ordinal = self.result.number
         position_current_player = self.state.player_boards[
-            self.state.turn_order[number]]
+            self.state.turn_order[ordinal]]
         if self.state.player_num > 2 and player == position_current_player:
             return False
         else:

@@ -76,16 +76,9 @@ class GameState(object):
 
     def set_next_turn_order(self):
         """Set the turn order for next round"""
-        turn_order_spaces = game_board.TurnOrderActionSpace.all_spaces
-
         # Find the occupants of the turn order spaces
-        first_space = None
-        second_space = None
-        for space in turn_order_spaces:
-            if turn_order_space_number(space) == 0:
-                first_space = space
-            elif turn_order_space_number(space) == 1:
-                second_space = space
+        first_space = game_board.TurnOrderActionSpace.all_spaces.get(0)
+        second_space = game_board.TurnOrderActionSpace.all_spaces.get(1)
 
         # Modify the turn order
         next_turn_order = list(self.turn_order)
@@ -113,11 +106,15 @@ class GameState(object):
         """Set the order of players to move their pieces off the turn
            selection spaces
         """
-        turn_order_spaces = game_board.TurnOrderActionSpace.all_spaces
-        turn_order_spaces.sort(key=turn_order_space_number, reverse=True)
+        turn_order_spaces = [
+            (space, ordinal) for ordinal, space in
+            game_board.TurnOrderActionSpace.all_spaces.items()]
+        turn_order_spaces = sorted(
+            turn_order_spaces, key=lambda x: x[1],
+            reverse=True)
         self.worker_replacement_order = [
             self.occupant_player_index(space.occupants)
-            for space in turn_order_spaces
+            for space, ordinal in turn_order_spaces
             if self.occupant_player_index(space.occupants) is not None]
 
     def player_index_with_color(self, color):
@@ -131,7 +128,3 @@ class GameState(object):
         if occupants:
             color = occupants[0][1]
             return self.player_index_with_color(color)
-
-def turn_order_space_number(space):
-    """Returns the number of the given turn number action space"""
-    return space.result.number
