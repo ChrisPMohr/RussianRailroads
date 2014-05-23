@@ -118,12 +118,14 @@ def worker_string(workers):
     return ''.join(color[0] if symbol == 'w' else symbol
                    for symbol, color in workers)
 
+
 def all_trains_string(player_board):
     label_string = '\n'.join([
         train_line_string('V', player_board.v_line),
         train_line_string('S', player_board.s_line),
         train_line_string('K', player_board.k_line)])
     return label_string
+
 
 def train_line_string(name, train_line):
     return_string = name
@@ -134,11 +136,11 @@ def train_line_string(name, train_line):
     return return_string
 
 
-
 def main():
     app = QtGui.QApplication(sys.argv)
     w = Window()
     sys.exit(app.exec_())
+
 
 if __name__ == '__main__':
     main()
